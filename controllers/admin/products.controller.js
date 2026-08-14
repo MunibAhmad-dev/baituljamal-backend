@@ -22,7 +22,8 @@ exports.list = async (req, res) => {
   if (q) {
     where.OR = [
       { name:     { contains: q, mode: 'insensitive' } },
-      { nameUrdu: { contains: q, mode: 'insensitive' } }
+      { nameUrdu: { contains: q, mode: 'insensitive' } },
+      { sku:      { contains: q, mode: 'insensitive' } },
     ]
   }
   const [products, total] = await Promise.all([
@@ -40,6 +41,7 @@ exports.create = async (req, res) => {
     data: {
       name:          d.name,
       nameUrdu:      d.nameUrdu      ?? null,
+      sku:           d.sku           ?? null,
       slug:          slugify(d.name),
       categorySlug:  d.categorySlug,
       alsoIn:        toArr(d.alsoIn),
@@ -84,6 +86,7 @@ exports.update = async (req, res) => {
   const data = {}
   if (d.name          !== undefined) data.name          = d.name
   if (d.nameUrdu      !== undefined) data.nameUrdu      = d.nameUrdu
+  if (d.sku           !== undefined) data.sku           = d.sku || null
   if (d.categorySlug  !== undefined) data.categorySlug  = d.categorySlug
   if (d.alsoIn        !== undefined) data.alsoIn        = toArr(d.alsoIn)
   if (d.type          !== undefined) data.type          = d.type

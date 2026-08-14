@@ -7,6 +7,7 @@ const categories  = require('../controllers/admin/categories.controller')
 const orders      = require('../controllers/admin/orders.controller')
 const users       = require('../controllers/admin/users.controller')
 const config      = require('../controllers/admin/config.controller')
+const banners     = require('../controllers/admin/banners.controller')
 
 // All admin routes require auth + admin role
 router.use(protect, adminOnly)
@@ -54,5 +55,11 @@ router.patch ('/users/:id/deactivate',              users.deactivate)
 // ── Config ───────────────────────────────────────────────────────────────────
 router.get   ('/config',                            config.get)
 router.put   ('/config',                            config.update)
+
+// ── Banners ──────────────────────────────────────────────────────────────────
+router.get   ('/banners',          banners.list)
+router.post  ('/banners',          upload.single('image'), banners.create)
+router.put   ('/banners/:id',      upload.single('image'), banners.update)
+router.delete('/banners/:id',      banners.remove)
 
 module.exports = router

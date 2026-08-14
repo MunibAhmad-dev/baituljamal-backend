@@ -32,6 +32,9 @@ app.use('/api/admin',                  require('./routes/admin.routes'))
 // Public config (frontend reads store settings without auth)
 app.get('/api/config',          require('./controllers/admin/config.controller').get)
 
+// Public banners (home page carousel)
+app.get('/api/banners',         require('./controllers/admin/banners.controller').list)
+
 // One-time make-admin bootstrap (uses env key)
 app.post('/api/auth/make-admin', require('./controllers/admin/users.controller').makeAdmin)
 
