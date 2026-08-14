@@ -89,8 +89,8 @@ async function seed() {
   const hash = await bcrypt.hash('Shalmani@1987', 10)
   await prisma.user.upsert({
     where:  { phone: '03119523856' },
-    create: { name: 'Izhar Shalmani', phone: '03119523856', password: hash, role: 'ADMIN' },
-    update: { name: 'Izhar Shalmani', password: hash, role: 'ADMIN' },
+    create: { name: 'Izhar Shalmani', phone: '03119523856', password: hash, role: 'admin' },
+    update: { name: 'Izhar Shalmani', password: hash, role: 'admin' },
   })
   console.log('  ✓ Admin: Izhar Shalmani | phone: 03119523856 | password: Shalmani@1987')
 
