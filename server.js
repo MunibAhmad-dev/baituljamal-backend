@@ -6,6 +6,7 @@ const path      = require('path')
 const rateLimit = require('express-rate-limit')
 
 const app = express()
+app.set('trust proxy', 1) // trust Cloudflare / reverse proxy
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors({ origin: process.env.CLIENT_URL || '*', credentials: true }))
