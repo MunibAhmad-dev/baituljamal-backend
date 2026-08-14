@@ -1,5 +1,6 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../.env') })
 const { PrismaClient } = require('@prisma/client')
+const bcrypt = require('bcryptjs')
 const prisma = new PrismaClient()
 
 function slugify(name) {
@@ -83,6 +84,15 @@ async function seed() {
 
   console.log('Ensuring SiteConfig...')
   await prisma.siteConfig.upsert({ where: { key: 'main' }, create: { key: 'main' }, update: {} })
+
+  console.log('Creating admin user...')
+  const hash = await bcrypt.hash('Shalmani@1987', 10)
+  await prisma.user.upsert({
+    where:  { phone: '03119523856' },
+    create: { name: 'Izhar Shalmani', phone: '03119523856', password: hash, role: 'ADMIN' },
+    update: { name: 'Izhar Shalmani', password: hash, role: 'ADMIN' },
+  })
+  console.log('  ✓ Admin: Izhar Shalmani | phone: 03119523856 | password: Shalmani@1987')
 
   console.log('\n✅ Seed complete!')
 }
