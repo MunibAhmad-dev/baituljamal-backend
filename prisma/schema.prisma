@@ -1,0 +1,202 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  user
+  admin
+}
+
+enum OrderStatus {
+  placed
+  confirmed
+  processing
+  dispatched
+  delivered
+  cancelled
+}
+
+enum PaymentMethod {
+  cod
+  bank
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  phone        String   @unique
+  password     String
+  role         Role     @default(user)
+  isActive     Boolean  @default(true)
+  refreshToken String?
+  orders       Order[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Category {
+  id           String    @id @default(cuid())
+  slug         String    @unique
+  name         String
+  nameUrdu     String?
+  nameSubtitle String?
+  description  String?
+  image        String?
+  types        String[]
+  sortOrder    Int       @default(0)
+  isActive     Boolean   @default(true)
+  // UI theme
+  gradient     String?
+  lightColor   String?
+  textColor    String?
+  borderColor  String?
+  icon         String?
+  products     Product[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+model Product {
+  id            String        @id @default(cuid())
+  name          String
+  nameUrdu      String?
+  slug          String        @unique
+  categorySlug  String
+  category      Category      @relation(fields: [categorySlug], references: [slug])
+  alsoIn        String[]
+  type          String?
+  price         Int
+  originalPrice Int?
+  image         String?
+  gallery       Json          @default("[]")
+  colors        Json          @default("[]")
+  sizes         String[]
+  minQty        Int           @default(1)
+  description   String?
+  features      String[]
+  badge         String?
+  badgeColor    String?
+  rating        Float         @default(0)
+  reviewCount   Int           @default(0)
+  featured      Boolean       @default(false)
+  isPublished   Boolean       @default(true)
+  inStock       Boolean       @default(true)
+  gradient      String?
+  sortOrder     Int           @default(0)
+  hasCatalog    Boolean       @default(false)
+  catalogItems  CatalogItem[]
+  orderItems    OrderItem[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("products")
+}
+
+model CatalogItem {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  title       String
+  image       String?
+  description String?
+  extraPrice  Int      @default(0)
+  colorHex    String?
+  type        String?
+  tags        String[]
+  inStock     Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("catalog_items")
+}
+
+model Order {
+  id            String          @id @default(cuid())
+  orderId       String          @unique
+  userId        String?
+  user          User?           @relation(fields: [userId], references: [id])
+  customerName  String
+  customerPhone String
+  customerCity  String?
+  customerAddr  String
+  customerNotes String?
+  items         OrderItem[]
+  subtotal      Int
+  deliveryFee   Int
+  grandTotal    Int
+  payment       PaymentMethod   @default(cod)
+  paymentStatus String          @default("pending")
+  status        OrderStatus     @default(placed)
+  statusHistory StatusHistory[]
+  adminNote     String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([customerPhone])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name        String
+  nameUrdu    String?
+  image       String?
+  size        String?
+  qty         Int
+  unitPrice   Int
+  totalPrice  Int
+  catalogItem Json?
+
+  @@map("order_items")
+}
+
+model StatusHistory {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  updatedBy String?
+  at        DateTime    @default(now())
+
+  @@map("status_history")
+}
+
+model SiteConfig {
+  id              String   @id @default(cuid())
+  key             String   @unique @default("main")
+  freeThreshold   Int      @default(5000)
+  flatFee         Int      @default(300)
+  estimatedDays   String   @default("3-5")
+  freeAreas       String[]
+  phone           String   @default("+92 311 9523856")
+  whatsapp        String   @default("923119523856")
+  email           String?
+  storeName       String   @default("Baitul Jamal")
+  storeNameArabic String   @default("بيت الجمال")
+  storeAddress    String   @default("Timergara, Dir Lower, KPK")
+  storeHours      String   @default("9am - 9pm Daily")
+  announcement    String?
+  seoTitle        String   @default("Baitul Jamal - Home & Living")
+  seoDescription  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("site_config")
+}
