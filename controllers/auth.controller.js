@@ -4,7 +4,7 @@ const prisma = require('../config/prisma')
 const { ok, created, fail, unauthorized } = require('../utils/apiResponse')
 
 const signTokens = (id) => ({
-  accessToken:  jwt.sign({ id }, process.env.JWT_SECRET,         { expiresIn: '15m' }),
+  accessToken:  jwt.sign({ id }, process.env.JWT_SECRET,         { expiresIn: '7d' }),
   refreshToken: jwt.sign({ id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '30d' })
 })
 
