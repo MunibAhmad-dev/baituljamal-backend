@@ -26,6 +26,7 @@ exports.create = async (req, res) => {
       types:       d.types ? (Array.isArray(d.types) ? d.types : d.types.split(',').map(s => s.trim())) : [],
       sortOrder:   parseInt(d.sortOrder) || 0,
       isActive:    d.isActive !== 'false',
+      isKit:       d.isKit === true || d.isKit === 'true',
       gradient:    d.gradient    ?? null,
       lightColor:  d.lightColor  ?? null,
       textColor:   d.textColor   ?? null,
@@ -55,6 +56,7 @@ exports.update = async (req, res) => {
   if (d.types        !== undefined) data.types       = Array.isArray(d.types) ? d.types : d.types.split(',').map(s => s.trim())
   if (d.sortOrder    !== undefined) data.sortOrder   = parseInt(d.sortOrder) || 0
   if (d.isActive     !== undefined) data.isActive    = d.isActive !== 'false'
+  if (d.isKit        !== undefined) data.isKit       = d.isKit === true || d.isKit === 'true'
   if (d.gradient     !== undefined) data.gradient    = d.gradient
   if (d.lightColor   !== undefined) data.lightColor  = d.lightColor
   if (d.textColor    !== undefined) data.textColor   = d.textColor

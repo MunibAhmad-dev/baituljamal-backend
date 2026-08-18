@@ -8,9 +8,25 @@ exports.placeOrder = async (req, res) => {
     return fail(res, 'customer name, phone and address are required', 400)
   if (!items?.length) return fail(res, 'Order must have at least one item', 400)
 
-  const config = await prisma.siteConfig.findFirst() ?? { freeThreshold: 5000, flatFee: 300 }
-  const subtotal    = items.reduce((s, i) => s + i.unitPrice * i.qty, 0)
-  const deliveryFee = subtotal >= config.freeThreshold ? 0 : config.flatFee
+  const config   = await prisma.siteConfig.findFirst() ?? { freeThreshold: 5000, flatFee: 300 }
+  const subtotal = items.reduce((s, i) => s + i.unitPrice * i.qty, 0)
+
+  // Check if any item belongs to a kit category → free delivery
+  let isKitOrder = false
+  const productIds = items.map(i => i.productId).filter(Boolean)
+  if (productIds.length > 0) {
+    const prods = await prisma.product.findMany({
+      where:  { id: { in: productIds } },
+      select: { categorySlug: true },
+    })
+    const catSlugs = [...new Set(prods.map(p => p.categorySlug).filter(Boolean))]
+    if (catSlugs.length > 0) {
+      const kitCount = await prisma.category.count({ where: { slug: { in: catSlugs }, isKit: true } })
+      isKitOrder = kitCount > 0
+    }
+  }
+
+  const deliveryFee = isKitOrder || subtotal >= config.freeThreshold ? 0 : config.flatFee
   const grandTotal  = subtotal + deliveryFee
   const orderId     = await generateOrderId()
 

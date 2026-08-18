@@ -52,6 +52,7 @@ model Category {
   types        String[]
   sortOrder    Int       @default(0)
   isActive     Boolean   @default(true)
+  isKit        Boolean   @default(false)
   // UI theme
   gradient     String?
   lightColor   String?
